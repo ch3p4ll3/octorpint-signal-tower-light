@@ -11,7 +11,7 @@
         "host": "",
         "port": 1883,
         "topics": [
-            "octoPrint/event/#"
+            "octoPrint/event/PrinterStateChanged"
         ],
         "username": "",
         "password": ""
