@@ -9,9 +9,9 @@ bool parseConfigFromJson(JsonDocument& doc, Config& config) {
   }
 
   if (doc["ap_wifi"].is<JsonObject>()) {
-    JsonObject wifi = doc["ap_wifi"].as<JsonObject>();
-    config.wifi.ssid = wifi["ssid"] | "";
-    config.wifi.password = wifi["password"] | "";
+    JsonObject ap_wifi = doc["ap_wifi"].as<JsonObject>();
+    config.ap_wifi.ssid = ap_wifi["ssid"] | "octoprint-signal-tower";
+    config.ap_wifi.password = ap_wifi["password"] | "octosignal";
   }
 
   // MQTT

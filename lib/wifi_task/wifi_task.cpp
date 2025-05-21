@@ -17,9 +17,8 @@ void dnsTask(void *pvParameters)
   }
 }
 
-void wifiTask(void *pvParameters)
+void wifiTask(Config *args)
 {
-  Config *args = static_cast<Config *>(pvParameters);
   Serial.println("Starting WiFi connection task...");
 
   WiFi.mode(WIFI_STA);
@@ -38,7 +37,6 @@ void wifiTask(void *pvParameters)
     Serial.println("\nWiFi connected!");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
-    vTaskDelete(NULL); // Delete this task, connection succeeded
   }
   else
   {
@@ -46,6 +44,7 @@ void wifiTask(void *pvParameters)
 
     WiFi.mode(WIFI_AP);
     WiFi.softAP(args->ap_wifi.ssid, args->ap_wifi.password);
+
     IPAddress apIP = WiFi.softAPIP();
 
     Serial.print("AP IP address: ");
@@ -55,8 +54,6 @@ void wifiTask(void *pvParameters)
     dnsServer.start(53, "*", apIP);
 
     // Start DNS task to run concurrently
-    xTaskCreatePinnedToCore(dnsTask, "dnsTask", 2048, NULL, 1, &dnsTaskHandle, 1);
-
-    vTaskDelete(NULL); // Done here, DNS runs separately
+    xTaskCreatePinnedToCore(dnsTask, "dnsTask", 2048, NULL, 1, &dnsTaskHandle, 0);
   }
 }

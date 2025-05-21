@@ -10,6 +10,8 @@ void mqttTask(void *pvParameters)
 {
     Config *args = static_cast<Config *>(pvParameters);
 
+    Serial.println("Initializing PubSubClient");
+
     mqttClient.setServer(args->mqtt.host.c_str(), args->mqtt.port);
 
     mqttClient.setCallback(mqtt_callback);
@@ -18,9 +20,14 @@ void mqttTask(void *pvParameters)
     {
         if (!mqttClient.connected())
         {
+            Serial.println("Connecting to broker");
+            
             if (!args->mqtt.password.isEmpty() && !args->mqtt.username.isEmpty())
             {
-                mqttClient.connect("TorreESPClient", args->mqtt.username.c_str(), args->mqtt.password.c_str());
+                mqttClient.connect("OctoSignal", args->mqtt.username.c_str(), args->mqtt.password.c_str());
+            }
+            else {
+                mqttClient.connect("OctoSignal");
             }
 
             for (String topic: args->mqtt.topics){
@@ -37,11 +44,12 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
     Serial.print("Message arrived [");
     Serial.print(topic);
     Serial.print("] ");
-    for (int i = 0; i < length; i++)
-    {
-        Serial.print((char)payload[i]);
-    }
-    Serial.println();
+    
+    JsonDocument newCfg;
+    DeserializationError err = deserializeJson(newCfg, payload, length);
 
-    setJobStatus("jobStatus");
+    Serial.println("Received JSON:");
+    serializeJsonPretty(newCfg, Serial);
+
+    setJobStatus(newCfg["_event"]);
 }

@@ -2,6 +2,7 @@
 
 
 void setupApi(AsyncWebServer &server, JsonDocument &config) {
+  Serial.println("Initializing AsyncWebServer");
   // Serve main UI
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *req){
     req->send(LittleFS, "/index.html", "text/html");
@@ -17,12 +18,16 @@ void setupApi(AsyncWebServer &server, JsonDocument &config) {
   // API: Save config and restart
   server.on("/api/settings", HTTP_POST, [](AsyncWebServerRequest *req){}, nullptr,
     [&config](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t, size_t){
+      Serial.write(data, len);  // Print raw received data
       JsonDocument newCfg;
       DeserializationError err = deserializeJson(newCfg, data, len);
       if (err) {
         req->send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
         return;
       }
+
+      Serial.println("Received JSON:");
+      serializeJsonPretty(newCfg, Serial);
 
       config = newCfg;
       File file = LittleFS.open("/config.json", "w");
@@ -46,5 +51,6 @@ void setupApi(AsyncWebServer &server, JsonDocument &config) {
     req->send(LittleFS, "/index.html", "text/html");
   });
 
+  Serial.println("Starting AsyncWebServer");
   server.begin();
 }

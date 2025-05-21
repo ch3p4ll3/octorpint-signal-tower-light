@@ -93,6 +93,7 @@ void lightTask(void *pvParameters)
     registerLightsFromConfig(args);
     for (;;)
     {
+        Serial.println(getJobStatus());
         updateLightsFromState(args, getJobStatus());
         for (auto &light : lights)
         {

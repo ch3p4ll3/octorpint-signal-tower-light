@@ -27,10 +27,13 @@ void setup()
   statusInit();
 
   readSettings();
+  
+  wifiTask(&config);
 
+  Serial.println("Wi-Fi configured!");
+  
   setupApi(server, settings);
 
-  xTaskCreatePinnedToCore(wifiTask, "wifiTask", 4096, &config, 1, &wifiTaskHandle, 1);
   xTaskCreatePinnedToCore(lightTask, "lightTask", 4096, &config, 1, &lightsTaskHandle, 1);
 
   if (config.useMqtt)

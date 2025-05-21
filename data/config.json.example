@@ -11,7 +11,7 @@
         "host": "",
         "port": 1883,
         "topics": [
-            "octoPrint/"
+            "octoPrint/event/#"
         ],
         "username": "",
         "password": ""
@@ -21,6 +21,16 @@
         "apiKey": ""
     },
     "lights": [
+        {
+            "name": "Green",
+            "pin": 2,
+            "reversed": false
+        },
+        {
+            "name": "Yellow",
+            "pin": 2,
+            "reversed": false
+        },
         {
             "name": "Red",
             "pin": 2,
@@ -62,6 +72,12 @@
             {
                 "name": "Red",
                 "blink": 0
+            }
+        ],
+        "Connected": [
+            {
+                "name": "Red",
+                "blink": 500
             }
         ]
     },
