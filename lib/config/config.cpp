@@ -43,6 +43,7 @@ bool parseConfigFromJson(JsonDocument& doc, Config& config) {
       LightConfig l;
       l.name = light["name"] | "";
       l.pin = light["pin"] | -1;
+      l.reversed = light["reversed"] | false;
       config.lights.push_back(l);
     }
   }

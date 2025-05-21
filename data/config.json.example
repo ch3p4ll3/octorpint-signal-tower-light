@@ -23,12 +23,12 @@
     "lights": [
         {
             "name": "Green",
-            "pin": 2,
+            "pin": 4,
             "reversed": false
         },
         {
             "name": "Yellow",
-            "pin": 2,
+            "pin": 3,
             "reversed": false
         },
         {
