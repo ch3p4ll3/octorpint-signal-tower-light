@@ -38,45 +38,51 @@
         }
     ],
     "states": {
-        "idle": [
-            {
-                "name": "Yellow",
-                "blink": 0
-            }
-        ],
-        "printing": [
+        "Printing": [
             {
                 "name": "Green",
                 "blink": 500
             }
         ],
-        "paused": [
+        "Pausing": [
+            {
+                "name": "Yellow",
+                "blink": 250
+            }
+        ],
+        "Paused": [
             {
                 "name": "Yellow",
                 "blink": 1000
             }
         ],
-        "error": [
+        "Error": [
             {
                 "name": "Red",
                 "blink": 500
             }
         ],
-        "complete": [
+        "Complete": [
             {
                 "name": "Green",
                 "blink": 0
             }
         ],
-        "offline": [
+        "Offline": [
             {
                 "name": "Red",
                 "blink": 0
             }
         ],
-        "Connected": [
+        "Operational": [
             {
-                "name": "Red",
+                "name": "Green",
+                "blink": 0
+            }
+        ],
+        "Connecting": [
+            {
+                "name": "Green",
                 "blink": 500
             }
         ]

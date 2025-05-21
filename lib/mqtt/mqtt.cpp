@@ -51,5 +51,5 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
     Serial.println("Received JSON:");
     serializeJsonPretty(newCfg, Serial);
 
-    setJobStatus(newCfg["_event"]);
+    setJobStatus(newCfg["state_string"]);
 }
