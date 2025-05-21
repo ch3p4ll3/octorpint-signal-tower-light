@@ -1,0 +1,69 @@
+{
+    "wifi": {
+        "ssid": "",
+        "password": ""
+    },
+    "ap_wifi": {
+        "ssid": "octoprint-signal-tower",
+        "password": "octosignal"
+    },
+    "mqtt": {
+        "host": "",
+        "port": 1883,
+        "topics": [
+            "octoPrint/"
+        ],
+        "username": "",
+        "password": ""
+    },
+    "rest": {
+        "url": "",
+        "apiKey": ""
+    },
+    "lights": [
+        {
+            "name": "Red",
+            "pin": 2,
+            "reversed": false
+        }
+    ],
+    "states": {
+        "idle": [
+            {
+                "name": "Yellow",
+                "blink": 0
+            }
+        ],
+        "printing": [
+            {
+                "name": "Green",
+                "blink": 500
+            }
+        ],
+        "paused": [
+            {
+                "name": "Yellow",
+                "blink": 1000
+            }
+        ],
+        "error": [
+            {
+                "name": "Red",
+                "blink": 500
+            }
+        ],
+        "complete": [
+            {
+                "name": "Green",
+                "blink": 0
+            }
+        ],
+        "offline": [
+            {
+                "name": "Red",
+                "blink": 0
+            }
+        ]
+    },
+    "useMqtt": false
+}
