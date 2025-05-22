@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
+#include <ArduinoLog.h>
 #include <AsyncTCP.h>
 
 #include <ESPAsyncWebServer.h>
@@ -23,15 +24,14 @@ void readSettings();
 void setup()
 {
   Serial.begin(115200);
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
 
   statusInit();
 
   readSettings();
-  
+
   wifiTask(&config);
 
-  Serial.println("Wi-Fi configured!");
-  
   setupApi(server, settings);
 
   xTaskCreatePinnedToCore(lightTask, "lightTask", 4096, &config, 1, &lightsTaskHandle, 1);
@@ -54,7 +54,7 @@ void readSettings()
 {
   if (!LittleFS.begin())
   {
-    Serial.println("LittleFS mount failed");
+    Log.error("LittleFS mount failed!\n");
     return;
   }
 
@@ -62,7 +62,7 @@ void readSettings()
 
   if (!file)
   {
-    Serial.println("Failed to open config.json");
+    Log.error("Failed to open config.json!\n");
     return;
   }
 
@@ -70,13 +70,12 @@ void readSettings()
 
   if (error)
   {
-    Serial.print("deserializeJson() failed: ");
-    Serial.println(error.f_str());
+    Log.error(F("deserializeJson() failed: %s\n"), error.c_str());
     return;
   }
 
   if (parseConfigFromJson(settings, config))
   {
-    Serial.println("Config loaded successfully.");
+    Log.info("Config loaded successfully.\n");
   }
 }

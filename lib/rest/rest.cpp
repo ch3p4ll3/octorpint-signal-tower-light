@@ -1,3 +1,4 @@
+#include <ArduinoLog.h>
 #include "rest.h"
 
 TaskHandle_t octoPrintAPITaskHandle = NULL;
@@ -13,7 +14,7 @@ void octoPrintAPITask(void *pvParameters)
     {
         if (WiFi.status() == WL_CONNECTED)
         {
-            String url = String(args->rest.url) + "/api/job";
+            String url = String(args->rest.url) + "/api/printer?exclude=temperature,sd";
 
             http.begin(url);
             http.addHeader("X-Api-Key", args->rest.apiKey);
@@ -28,26 +29,26 @@ void octoPrintAPITask(void *pvParameters)
                 if (!error)
                 {
                     // extract print state
-                    const char *state = jsonDoc["state"];
-                    Serial.printf("OctoPrint job state: %s\n", state);
+                    const char *state = jsonDoc["state"]["text"];
+                    Log.info(F("New printer state: %s \n"), state);
 
                     setJobStatus(state);
                 }
                 else
                 {
-                    Serial.println("JSON parse error");
+                    Log.error("JSON parse error\n");
                 }
             }
             else
             {
-                Serial.printf("HTTP GET failed, error: %d\n", httpResponseCode);
+                Log.error(F("HTTP GET failed, error: %d\n"), httpResponseCode);
             }
 
             http.end();
         }
         else
         {
-            Serial.println("WiFi not connected");
+            Log.error("WiFi not connected");
         }
 
         vTaskDelay(pollIntervalMs / portTICK_PERIOD_MS);

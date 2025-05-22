@@ -1,8 +1,9 @@
 #include "api.h"
+#include <ArduinoLog.h>
 
 
 void setupApi(AsyncWebServer &server, JsonDocument &config) {
-  Serial.println("Initializing AsyncWebServer");
+  Log.info("Initializing AsyncWebServer\n");
   // Serve main UI
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *req){
     req->send(LittleFS, "/index.html", "text/html");
@@ -26,7 +27,7 @@ void setupApi(AsyncWebServer &server, JsonDocument &config) {
         return;
       }
 
-      Serial.println("Received JSON:");
+      Log.info("Received JSON: ");
       serializeJsonPretty(newCfg, Serial);
 
       config = newCfg;
@@ -51,6 +52,6 @@ void setupApi(AsyncWebServer &server, JsonDocument &config) {
     req->send(LittleFS, "/index.html", "text/html");
   });
 
-  Serial.println("Starting AsyncWebServer");
+  Log.info("Starting AsyncWebServer\n");
   server.begin();
 }
