@@ -1,4 +1,4 @@
-#include "lights.h"
+#include "lights_task.h"
 
 #include <status.h>
 

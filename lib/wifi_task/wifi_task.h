@@ -8,4 +8,4 @@ extern TaskHandle_t wifiTaskHandle;
 extern TaskHandle_t dnsTaskHandle;
 
 void dnsTask(void* pvParameters);
-void wifiTask(Config *args);
+void setupWiFi(Config *args);

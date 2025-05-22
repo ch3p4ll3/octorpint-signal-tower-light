@@ -9,10 +9,10 @@
 
 #include <config.cpp>
 #include <wifi_task.h>
-#include <lights.h>
-#include <api.h>
-#include <rest.h>
-#include <mqtt.h>
+#include <lights_task.h>
+#include <api_task.h>
+#include <octoprint_API_task.h>
+#include <mqtt_task.h>
 #include <status.h>
 
 Config config;
@@ -30,7 +30,7 @@ void setup()
 
   readSettings();
 
-  wifiTask(&config);
+  setupWiFi(&config);
 
   setupApi(server, settings);
 

@@ -19,7 +19,7 @@ void dnsTask(void *pvParameters)
   }
 }
 
-void wifiTask(Config *args)
+void setupWiFi(Config *args)
 {
   Log.info("Starting WiFi connection task");
 

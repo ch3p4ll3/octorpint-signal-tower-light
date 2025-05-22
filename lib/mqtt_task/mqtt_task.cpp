@@ -2,7 +2,7 @@
 
 #include <config.h>
 #include <status.h>
-#include "mqtt.h"
+#include "mqtt_task.h"
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -51,7 +51,7 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
     Log.info("Received JSON: ");
     serializeJsonPretty(newCfg, Serial);
 
-    Log.info(F("New printer state: %s"), newCfg["state_string"]);
+    Log.info(F("New printer state: %s"), newCfg["state_string"].as<const char*>());
 
     setJobStatus(newCfg["state_string"]);
 }

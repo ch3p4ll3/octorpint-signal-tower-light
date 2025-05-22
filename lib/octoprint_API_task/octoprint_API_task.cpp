@@ -1,5 +1,5 @@
 #include <ArduinoLog.h>
-#include "rest.h"
+#include "octoprint_API_task.h"
 
 TaskHandle_t octoPrintAPITaskHandle = NULL;
 
