@@ -30,9 +30,9 @@ void setupWiFi(Config *args)
 
   unsigned long startAttemptTime = millis();
 
-  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000)
+  while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 20000)
   {
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    delay(500);
   }
 
   if (WiFi.status() == WL_CONNECTED)
