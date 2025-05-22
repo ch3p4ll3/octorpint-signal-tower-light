@@ -41,7 +41,7 @@ void setupWiFi(Config *args)
   }
   else
   {
-    Log.warning("nFailed to connect, starting AP mode\n");
+    Log.warning("Failed to connect, starting AP mode\n");
 
     WiFi.mode(WIFI_AP);
     WiFi.softAP(args->ap_wifi.ssid, args->ap_wifi.password);
