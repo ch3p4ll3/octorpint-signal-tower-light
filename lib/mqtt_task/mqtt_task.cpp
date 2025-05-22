@@ -1,6 +1,8 @@
+#include <ArduinoLog.h>
+
 #include <config.h>
 #include <status.h>
-#include "mqtt.h"
+#include "mqtt_task.h"
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
@@ -10,7 +12,7 @@ void mqttTask(void *pvParameters)
 {
     Config *args = static_cast<Config *>(pvParameters);
 
-    Serial.println("Initializing PubSubClient");
+    Log.info("Initializing PubSubClient");
 
     mqttClient.setServer(args->mqtt.host.c_str(), args->mqtt.port);
 
@@ -20,7 +22,7 @@ void mqttTask(void *pvParameters)
     {
         if (!mqttClient.connected())
         {
-            Serial.println("Connecting to broker");
+            Log.info("Connecting to broker");
             
             if (!args->mqtt.password.isEmpty() && !args->mqtt.username.isEmpty())
             {
@@ -41,15 +43,15 @@ void mqttTask(void *pvParameters)
 
 void mqtt_callback(char *topic, byte *payload, unsigned int length)
 {
-    Serial.print("Message arrived [");
-    Serial.print(topic);
-    Serial.print("] ");
+    Log.info(F("Message arrived [%s]\n"), topic);
     
     JsonDocument newCfg;
     DeserializationError err = deserializeJson(newCfg, payload, length);
 
-    Serial.println("Received JSON:");
+    Log.info("Received JSON: ");
     serializeJsonPretty(newCfg, Serial);
+
+    Log.info(F("New printer state: %s"), newCfg["state_string"].as<const char*>());
 
     setJobStatus(newCfg["state_string"]);
 }
