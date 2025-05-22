@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include <vector>
-#include <map>
 #include <config.h>
+
+#include <map>
+#include <vector>
 
 struct DynamicLight {
   String name;
@@ -16,5 +17,5 @@ extern std::vector<DynamicLight> lights;
 extern TaskHandle_t lightsTaskHandle;
 
 void lightTask(void *pvParameters);
-void updateLightsFromState(const String& state);
-void registerLightsFromConfig(Config* config);
+void updateLightsFromState(const String &state);
+void registerLightsFromConfig(Config *config);

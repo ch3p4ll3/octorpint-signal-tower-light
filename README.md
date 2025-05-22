@@ -60,10 +60,12 @@ The `config.json` file controls all network, MQTT, REST, and light behavior sett
 
 ```json
 {
-  "wifi": {
-    "ssid": "",
-    "password": ""
-  },
+  "wifi": [
+    {
+      "ssid": "",
+      "password": ""
+    }
+  ],
   "ap_wifi": {
     "ssid": "octoprint-signal-tower",
     "password": "octosignal"
@@ -157,16 +159,20 @@ The `config.json` file controls all network, MQTT, REST, and light behavior sett
 #### WiFi Settings
 
 ```json
-"wifi": {
-  "ssid": "",
-  "password": ""
-}
+"wifi": [
+  {
+    "ssid": "",
+    "password": ""
+  }
+]
 ```
 
 * **ssid**: The name of your WiFi network for the ESP32 to connect to.
 * **password**: The WiFi network password.
 
-This is the primary WiFi your ESP32 will use to connect to your network and reach the OctoPrint server.
+You can specify multiple WiFi networks.
+At startup, the ESP32 scans for available networks and attempts to connect to the **strongest** one that matches an entry in the list.
+If it fails to connect to any of them within the timeout period, it will fall back to Access Point (AP) mode for manual configuration.
 
 
 #### Access Point WiFi Settings

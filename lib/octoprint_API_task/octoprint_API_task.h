@@ -1,7 +1,6 @@
 #include <Arduino.h>
-#include <HTTPClient.h>
 #include <ArduinoJson.h>
-
+#include <HTTPClient.h>
 #include <config.h>
 #include <status.h>
 
@@ -10,4 +9,4 @@ const uint32_t pollIntervalMs = 5000;
 
 extern TaskHandle_t octoPrintAPITaskHandle;
 
-void octoPrintAPITask(void* pvParameters);
+void octoPrintAPITask(void *pvParameters);

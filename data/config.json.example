@@ -1,8 +1,10 @@
 {
-    "wifi": {
-        "ssid": "",
-        "password": ""
-    },
+    "wifi": [
+        {
+            "ssid": "",
+            "password": ""
+        }
+    ],
     "ap_wifi": {
         "ssid": "octoprint-signal-tower",
         "password": "octosignal"
@@ -17,7 +19,7 @@
         "password": ""
     },
     "rest": {
-        "url": "",
+        "url": "http://MY_OCTOPRINT_INSTANCE:PORT",
         "apiKey": ""
     },
     "lights": [

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ArduinoJson.h>
-#include <vector>
 #include <Arduino.h>
-#include <map>
+#include <ArduinoJson.h>
 
+#include <map>
+#include <vector>
 
 struct LightConfig {
   String name;
@@ -36,7 +36,7 @@ struct RestConfig {
 };
 
 struct Config {
-  WifiConfig wifi;
+  std::vector<WifiConfig> wifi;
   WifiConfig ap_wifi;
   MqttConfig mqtt;
   RestConfig rest;

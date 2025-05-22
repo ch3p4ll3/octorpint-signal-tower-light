@@ -1,11 +1,18 @@
 #include "config.h"
 
-bool parseConfigFromJson(JsonDocument& doc, Config& config) {
+bool parseConfigFromJson(JsonDocument &doc, Config &config) {
   // WiFi
-  if (doc["wifi"].is<JsonObject>()) {
-    JsonObject wifi = doc["wifi"].as<JsonObject>();
-    config.wifi.ssid = wifi["ssid"] | "";
-    config.wifi.password = wifi["password"] | "";
+  config.wifi.clear();
+  if (doc["wifi"].is<JsonArray>()) {
+    JsonArray wifiArray = doc["wifi"].as<JsonArray>();
+    for (JsonObject wifiObj : wifiArray) {
+      WifiConfig cred;
+      cred.ssid = wifiObj["ssid"] | "";
+      cred.password = wifiObj["password"] | "";
+      if (!cred.ssid.isEmpty()) {
+        config.wifi.push_back(cred);
+      }
+    }
   }
 
   if (doc["ap_wifi"].is<JsonObject>()) {
@@ -53,7 +60,8 @@ bool parseConfigFromJson(JsonDocument& doc, Config& config) {
     JsonObject states = doc["states"].as<JsonObject>();
     for (JsonPair kv : states) {
       String stateName = kv.key().c_str();
-      if (!kv.value().is<JsonArray>()) continue;
+      if (!kv.value().is<JsonArray>())
+        continue;
       std::vector<StateLight> lightsInState;
       for (JsonObject obj : kv.value().as<JsonArray>()) {
         StateLight sl;
