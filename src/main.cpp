@@ -1,19 +1,18 @@
 #include <Arduino.h>
-#include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <ArduinoLog.h>
 #include <AsyncTCP.h>
-
 #include <ESPAsyncWebServer.h>
+#include <LittleFS.h>
 #include <WiFi.h>
+#include <api_task.h>
+#include <lights_task.h>
+#include <mqtt_task.h>
+#include <octoprint_API_task.h>
+#include <status.h>
+#include <wifi_task.h>
 
 #include <config.cpp>
-#include <wifi_task.h>
-#include <lights_task.h>
-#include <api_task.h>
-#include <octoprint_API_task.h>
-#include <mqtt_task.h>
-#include <status.h>
 
 Config config;
 JsonDocument settings;
@@ -42,13 +41,12 @@ void setup()
   }
   else
   {
-    xTaskCreatePinnedToCore(octoPrintAPITask, "octoPrintAPITask", 4096, &config, 1, &octoPrintAPITaskHandle, 1);
+    xTaskCreatePinnedToCore(octoPrintAPITask, "octoPrintAPITask", 4096, &config, 1,
+                            &octoPrintAPITaskHandle, 1);
   }
 }
 
-void loop()
-{
-}
+void loop() {}
 
 void readSettings()
 {
