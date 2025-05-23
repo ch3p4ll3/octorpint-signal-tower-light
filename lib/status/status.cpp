@@ -5,7 +5,7 @@ String jobStatus;
 
 void statusInit() {
   statusMutex = xSemaphoreCreateMutex();
-  jobStatus = ""; // initialize status
+  jobStatus = "Offline"; // initialize status
 }
 
 String getJobStatus() {
