@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WiFi Config Editor</title>
+    <title>Bootstrap demo</title>
     <link href="/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -14,7 +14,9 @@
     </div>
 
     <script src="/bootstrap.bundle.min.js"></script>
+
     <script>
+        // Helper: create an element with optional attributes, classes, text
         function el(tag, options = {}) {
             const e = document.createElement(tag);
             if (options.classes) e.className = options.classes;
@@ -27,6 +29,7 @@
             return e;
         }
 
+        // Create input with label wrapper
         function labeledInput({ id, labelText, type = 'text', value = '', classes = 'form-control', attrs = {} }) {
             const wrapper = el('div', { classes: 'mb-3' });
             const label = el('label', { text: labelText, attrs: { for: id }, classes: 'form-label' });
@@ -36,6 +39,7 @@
             return { wrapper, input };
         }
 
+        // Create checkbox with label
         function labeledCheckbox({ id, labelText, checked = false, classes = 'form-check-input' }) {
             const wrapper = el('div', { classes: 'form-check mb-3' });
             const input = el('input', { attrs: { id, type: 'checkbox' }, classes });
@@ -46,6 +50,7 @@
             return { wrapper, input };
         }
 
+        // Create a collapsible fieldset (for grouping)
         function createFieldset(legendText) {
             const fs = el('fieldset', { classes: 'border p-3 mb-3 rounded' });
             const legend = el('legend', { text: legendText, classes: 'float-none w-auto px-2' });
@@ -53,74 +58,129 @@
             return fs;
         }
 
-        function createWifiEntry(index, wifiData) {
+        // Create inputs for lights
+        function createLightForm(index, lightData) {
             const container = el('div', { classes: 'mb-3 border rounded p-3 position-relative' });
-            const removeBtn = el('button', {
-                classes: 'btn-close position-absolute top-0 end-0 m-2',
-                attrs: { type: 'button' }
-            });
-            removeBtn.title = 'Remove WiFi network';
+            const removeBtn = el('button', { classes: 'btn-close position-absolute top-0 end-0 m-2', attrs: { type: 'button' }, });
+            removeBtn.title = 'Remove light';
             removeBtn.onclick = () => container.remove();
             container.appendChild(removeBtn);
 
-            const ssid = labeledInput({ id: `wifi-ssid-${index}`, labelText: 'SSID', value: wifiData.ssid });
-            const pass = labeledInput({ id: `wifi-pass-${index}`, labelText: 'Password', type: 'password', value: wifiData.password });
-            container.append(ssid.wrapper, pass.wrapper);
+            const name = labeledInput({ id: `light-name-${index}`, labelText: 'Name', value: lightData.name });
+            const pin = labeledInput({ id: `light-pin-${index}`, labelText: 'Pin', value: lightData.pin, type: 'number', attrs: { min: 0 } });
+            const reversed = labeledCheckbox({ id: `light-reversed-${index}`, labelText: 'Reversed', checked: lightData.reversed });
+
+            container.append(name.wrapper, pin.wrapper, reversed.wrapper);
             return container;
         }
 
-        function addWifi(container, wifiData = { ssid: '', password: '' }) {
+        // Create inputs for a single state entry
+        function createStateEntryForm(stateName, index, entryData) {
+            const container = el('div', { classes: 'mb-3 border rounded p-3 position-relative' });
+            const removeBtn = el('button', { classes: 'btn-close position-absolute top-0 end-0 m-2', attrs: { type: 'button' } });
+            removeBtn.title = `Remove entry from "${stateName}"`;
+            removeBtn.onclick = () => container.remove();
+            container.appendChild(removeBtn);
+
+            const name = labeledInput({ id: `${stateName}-name-${index}`, labelText: 'Name', value: entryData.name });
+            const blink = labeledInput({ id: `${stateName}-blink-${index}`, labelText: 'Blink (ms)', value: entryData.blink, type: 'number', attrs: { min: 0 } });
+
+            container.append(name.wrapper, blink.wrapper);
+            return container;
+        }
+
+        // Add a new light block
+        function addLight(container, light = { name: '', pin: 0, reversed: false }) {
             const index = container.children.length;
-            container.appendChild(createWifiEntry(index, wifiData));
+            container.appendChild(createLightForm(index, light));
+        }
+
+        // Add a new state entry block
+        function addStateEntry(statesContainer, stateName, entry = { name: '', blink: 0 }) {
+            let stateGroup = statesContainer.querySelector(`div[data-state="${stateName}"]`);
+            if (!stateGroup) {
+                stateGroup = el('div', { classes: 'mb-4', attrs: { 'data-state': stateName } });
+                const title = el('h5', { text: stateName.charAt(0).toUpperCase() + stateName.slice(1) });
+                const addBtn = el('button', { text: `Add entry to "${stateName}"`, classes: 'btn btn-sm btn-outline-secondary mb-3', attrs: { type: 'button' } });
+                addBtn.onclick = () => addStateEntry(statesContainer, stateName);
+                stateGroup.append(title, addBtn);
+                const entriesContainer = el('div', { classes: 'entries-container' });
+                stateGroup.appendChild(entriesContainer);
+                statesContainer.appendChild(stateGroup);
+            }
+            const entriesContainer = stateGroup.querySelector('.entries-container');
+            const index = entriesContainer.children.length;
+            entriesContainer.appendChild(createStateEntryForm(stateName, index, entry));
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const root = document.getElementById('root');
             root.innerHTML = '<h1 class="mb-4">Edit Configuration Data</h1>';
-            let data;
 
+            // Fetch your JSON (replace URL below)
+            let data;
             try {
                 const res = await fetch('api/settings');
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 data = await res.json();
             } catch {
+                // fallback example data:
                 data = {
-                    wifi: [
-                        { ssid: '', password: '' }
-                    ],
+                    wifi: [{ ssid: '', password: '' }],
                     ap_wifi: { ssid: 'octoprint-signal-tower', password: 'octosignal' },
                     mqtt: { host: '', port: 1883, topics: ['octoPrint/'], username: '', password: '' },
                     rest: { url: '', apiKey: '' },
-                    lights: [],
-                    states: {},
-                    useMqtt: false
+                    lights: [{ name: 'Red', pin: 2, reversed: false }],
+                    states: {
+                        idle: [{ name: 'Yellow', blink: 0 }],
+                        printing: [{ name: 'Green', blink: 500 }],
+                        paused: [{ name: 'Yellow', blink: 1000 }],
+                        error: [{ name: 'Red', blink: 500 }],
+                        complete: [{ name: 'Green', blink: 0 }],
+                        offline: [{ name: 'Red', blink: 0 }],
+                    },
+                    useMqtt: false,
                 };
             }
 
+            // Create form
             const form = el('form');
 
-            // === Multi WiFi Config ===
-            const wifiFS = createFieldset('WiFi Networks');
-            const wifiListContainer = el('div', { attrs: { id: 'wifi-list-container' } });
-            wifiFS.appendChild(wifiListContainer);
-            const addWifiBtn = el('button', {
-                text: 'Add WiFi',
-                classes: 'btn btn-sm btn-outline-primary mt-2',
-                attrs: { type: 'button' }
-            });
-            addWifiBtn.onclick = () => addWifi(wifiListContainer);
+            // WiFi fieldset
+            const wifiFS = createFieldset('WiFi');
+            const wifiContainer = el('div', { attrs: { id: 'wifi-container' } });
+            wifiFS.appendChild(wifiContainer);
+
+            function addWifiInput(container, wifi = { ssid: '', password: '' }) {
+                const index = container.children.length;
+                const wrapper = el('div', { classes: 'mb-3 border rounded p-3 position-relative' });
+
+                const removeBtn = el('button', { classes: 'btn-close position-absolute top-0 end-0 m-2', attrs: { type: 'button' } });
+                removeBtn.title = 'Remove WiFi';
+                removeBtn.onclick = () => wrapper.remove();
+                wrapper.appendChild(removeBtn);
+
+                const ssid = labeledInput({ id: `wifi-ssid-${index}`, labelText: 'SSID', value: wifi.ssid });
+                const pass = labeledInput({ id: `wifi-password-${index}`, labelText: 'Password', value: wifi.password, type: 'password' });
+
+                wrapper.append(ssid.wrapper, pass.wrapper);
+                container.appendChild(wrapper);
+            }
+
+            const addWifiBtn = el('button', { text: 'Add WiFi', classes: 'btn btn-sm btn-outline-primary mt-2', attrs: { type: 'button' } });
+            addWifiBtn.onclick = () => addWifiInput(wifiContainer);
             wifiFS.appendChild(addWifiBtn);
 
-            const wifiEntries = Array.isArray(data.wifi) ? data.wifi : [data.wifi];
-            wifiEntries.forEach(w => addWifi(wifiListContainer, w));
+            data.wifi.forEach(w => addWifiInput(wifiContainer, w));
 
-            // === AP WiFi Config ===
+
+            // AP WiFi fieldset
             const apWifiFS = createFieldset('AP WiFi');
             const apSSID = labeledInput({ id: 'ap-wifi-ssid', labelText: 'SSID', value: data.ap_wifi.ssid });
             const apPass = labeledInput({ id: 'ap-wifi-password', labelText: 'Password', value: data.ap_wifi.password, type: 'password' });
             apWifiFS.append(apSSID.wrapper, apPass.wrapper);
 
-            // === MQTT ===
+            // MQTT fieldset
             const mqttFS = createFieldset('MQTT');
             const mqttHost = labeledInput({ id: 'mqtt-host', labelText: 'Host', value: data.mqtt.host });
             const mqttPort = labeledInput({ id: 'mqtt-port', labelText: 'Port', value: data.mqtt.port, type: 'number', attrs: { min: 0 } });
@@ -129,32 +189,88 @@
             const mqttPass = labeledInput({ id: 'mqtt-password', labelText: 'Password', value: data.mqtt.password, type: 'password' });
             mqttFS.append(mqttHost.wrapper, mqttPort.wrapper, mqttTopics.wrapper, mqttUser.wrapper, mqttPass.wrapper);
 
-            // === REST ===
+            // REST fieldset
             const restFS = createFieldset('REST API');
             const restURL = labeledInput({ id: 'rest-url', labelText: 'URL', value: data.rest.url });
             const restApiKey = labeledInput({ id: 'rest-apiKey', labelText: 'API Key', value: data.rest.apiKey });
             restFS.append(restURL.wrapper, restApiKey.wrapper);
 
-            // === MQTT Toggle ===
-            const useMqttCB = labeledCheckbox({ id: 'use-mqtt', labelText: 'Use MQTT', checked: data.useMqtt });
+            // Lights fieldset
+            const lightsFS = createFieldset('Lights');
+            const lightsContainer = el('div', { attrs: { id: 'lights-container' } });
+            lightsFS.appendChild(lightsContainer);
+            const addLightBtn = el('button', { text: 'Add Light', classes: 'btn btn-sm btn-outline-primary mt-2', attrs: { type: 'button' } });
+            addLightBtn.onclick = () => addLight(lightsContainer);
+            lightsFS.appendChild(addLightBtn);
+            data.lights.forEach(light => addLight(lightsContainer, light));
 
-            // === Submit Button ===
-            const submitBtn = el('button', {
-                text: 'Save Configuration',
-                classes: 'btn btn-success mt-3',
-                attrs: { type: 'submit' }
+            // States fieldset
+            const statesFS = createFieldset('States');
+            const statesContainer = el('div', { attrs: { id: 'states-container' } });
+            statesFS.appendChild(statesContainer);
+            Object.entries(data.states).forEach(([stateName, entries]) => {
+                entries.forEach(entry => addStateEntry(statesContainer, stateName, entry));
             });
 
-            form.append(wifiFS, apWifiFS, mqttFS, restFS, useMqttCB.wrapper, submitBtn);
+            // Use MQTT checkbox
+            const useMqttCB = labeledCheckbox({ id: 'use-mqtt', labelText: 'Use MQTT', checked: data.useMqtt });
+
+            // Submit button
+            const submitBtn = el('button', { text: 'Save Configuration', classes: 'btn btn-success mt-3', attrs: { type: 'submit' } });
+
+            form.append(wifiFS, apWifiFS, mqttFS, restFS, lightsFS, statesFS, useMqttCB.wrapper, submitBtn);
 
             form.onsubmit = async (e) => {
                 e.preventDefault();
 
+                // Collect data from form fields
+                const collectLights = () => {
+                    const lightsEls = lightsContainer.children;
+                    const lights = [];
+                    for (const el of lightsEls) {
+                        const name = el.querySelector('input[id^="light-name-"]').value.trim();
+                        const pin = parseInt(el.querySelector('input[id^="light-pin-"]').value);
+                        const reversed = el.querySelector('input[id^="light-reversed-"]').checked;
+                        if (name && !isNaN(pin)) lights.push({ name, pin, reversed });
+                    }
+                    return lights;
+                };
+
+                const collectStates = () => {
+                    const states = {};
+                    for (const stateGroup of statesContainer.children) {
+                        const stateName = stateGroup.getAttribute('data-state');
+                        const entriesContainer = stateGroup.querySelector('.entries-container');
+                        const entries = [];
+                        for (const entryEl of entriesContainer.children) {
+                            const name = entryEl.querySelector(`input[id^="${stateName}-name-"]`).value.trim();
+                            const blink = parseInt(entryEl.querySelector(`input[id^="${stateName}-blink-"]`).value);
+                            if (name && !isNaN(blink)) entries.push({ name, blink });
+                        }
+                        states[stateName] = entries;
+                    }
+                    return states;
+                };
+
+                const collectWifi = () => {
+                    const wifiEntries = [];
+                    const wifiContainer = document.getElementById('wifi-container');
+                    for (const el of wifiContainer.children) {
+                        const ssidInput = el.querySelector('input[id^="wifi-ssid-"]');
+                        const passInput = el.querySelector('input[id^="wifi-password-"]');
+
+                        const ssid = ssidInput?.value.trim() || '';
+                        const password = passInput?.value || '';
+
+                        if (ssid) {
+                            wifiEntries.push({ ssid, password });
+                        }
+                    }
+                    return wifiEntries;
+                }
+
                 const updatedConfig = {
-                    wifi: Array.from(wifiListContainer.children).map(el => ({
-                        ssid: el.querySelector('input[id^="wifi-ssid-"]').value.trim(),
-                        password: el.querySelector('input[id^="wifi-pass-"]').value,
-                    })).filter(w => w.ssid),
+                    wifi: collectWifi(),
                     ap_wifi: {
                         ssid: document.getElementById('ap-wifi-ssid').value.trim(),
                         password: document.getElementById('ap-wifi-password').value,
@@ -162,7 +278,7 @@
                     mqtt: {
                         host: document.getElementById('mqtt-host').value.trim(),
                         port: parseInt(document.getElementById('mqtt-port').value),
-                        topics: document.getElementById('mqtt-topics').value.split(',').map(t => t.trim()).filter(Boolean),
+                        topics: document.getElementById('mqtt-topics').value.split(',').map(t => t.trim()).filter(t => t),
                         username: document.getElementById('mqtt-username').value.trim(),
                         password: document.getElementById('mqtt-password').value,
                     },
@@ -170,20 +286,30 @@
                         url: document.getElementById('rest-url').value.trim(),
                         apiKey: document.getElementById('rest-apiKey').value.trim(),
                     },
-                    useMqtt: document.getElementById('use-mqtt').checked
+                    lights: collectLights(),
+                    states: collectStates(),
+                    useMqtt: document.getElementById('use-mqtt').checked,
                 };
 
+                console.log('Updated Config:', updatedConfig);
+                alert('Configuration saved! (check console)');
+                // Here you can POST updatedConfig to your backend or handle it as needed.
                 try {
                     const response = await fetch('api/settings', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updatedConfig)
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updatedConfig),
                     });
 
-                    if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+
                     alert('Configuration saved successfully!');
-                } catch (err) {
-                    console.error('Failed to save configuration:', err);
+                } catch (error) {
+                    console.error('Failed to save configuration:', error);
                     alert('Failed to save configuration. See console for details.');
                 }
             };
